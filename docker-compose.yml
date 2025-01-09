@@ -1,0 +1,46 @@
+version: '3.3'
+
+services:
+  backend:
+    build:
+      context: ./assignment/backend
+      dockerfile: backend.Dockerfile
+    env_file:
+      - ./assignment/backend/.env # This is the path to your .env file
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./assignment/frontend
+      dockerfile: frontend.Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin1234
+      - POSTGRES_DB=demodb
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+volumes:
+  db_data:
+
+networks:
+  app-network:
+    driver: bridge
