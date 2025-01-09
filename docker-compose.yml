@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:latest
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: mydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./assignment/backend
+      dockerfile: backend.Dockerfile
+    container_name: backend_app
+    ports:
+      - "8000:8080"
+    depends_on:
+      - db
+    env_file:
+      - ./assignment/backend/.env
+
+  frontend:
+    build:
+      context: ./assignment/frontend
+      dockerfile: frontend.Dockerfile
+    container_name: frontend_app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    env_file:
+      - ./assignment/frontend/.env
+
+volumes:
+  pgdata:
+
