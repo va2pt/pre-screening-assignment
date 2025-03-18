@@ -1,0 +1,52 @@
+version: '3.4'
+
+# services:
+#   prescreeningassignment:
+#     image: prescreeningassignment
+#     build:
+#       context: .
+#       dockerfile: ./Dockerfile
+#     ports:
+#       - 8000:8000
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: assignment
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./assignment/backend  # Ensure this path exists
+      dockerfile: Dockerfile
+    container_name: backend_service
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgresql://postgres:admin@postgres:5432/assignment
+    ports:
+      - "8000:8000"
+    restart: always
+
+  frontend:
+    build:
+      context: ./assignment/frontend  # Ensure this path exists
+      dockerfile: Dockerfile
+    container_name: frontend_service
+    depends_on:
+      - backend
+    environment:
+      REACT_APP_BACKEND_URL: http://backend_service:8000
+    ports:
+      - "3000:3000"
+    restart: always
+
+volumes:
+  postgres_data:
