@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: frontend.Dockerfile
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    networks:
+      - assignment
+    env_file:
+      ./backend/.env
+  backend:
+    build:
+      context: ./backend
+      dockerfile: backend.Dockerfile
+    container_name: backend
+    ports:
+      - "8000:8000"
+    networks:
+      - assignment
+    env_file:
+      ./backend/.env
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: unless-stopped
+    env_file:
+      ./backend/.env
+    volumes:
+      - ./postgres/data:/var/lib/postgresql/data
+    networks:
+      - assignment
+    ports:
+      - "5432:5432"
+
+networks:
+  assignment:
+    driver: bridge
+    external: true
+
